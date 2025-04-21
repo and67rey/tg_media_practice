@@ -47,7 +47,7 @@ async def start(message: Message, state: FSMContext):
 async def help_handler(message: Message):
     help_text = (
         "Бот поддерживает команды /start и /help\n"
-        "Бот просит пользователя ввести его имя, возраст и класс обучения\n"
+        "Бот просит пользователя ввести его имя, возраст и класс обучения "
         "и далее сохраняет полученную информацию в базу данных."
     )
     await message.answer(help_text)
@@ -72,11 +72,27 @@ async def grade(message: Message, state:FSMContext):
     cur = conn.cursor()
     cur.execute('''
        INSERT INTO students (name, age, grade) VALUES (?, ?, ?)''',
-                (student_data['name'], student_data['age'], student_data['city']))
+                (student_data['name'], student_data['age'], student_data['grade']))
     conn.commit()
     conn.close()
     await message.answer("Информация сохранена в базе данных")
     await state.clear()
+
+@dp.message(Command("school_data"))
+async def send_school_data(message: Message):
+    conn = sqlite3.connect('school_data.db')
+    cur = conn.cursor()
+    cur.execute("SELECT id, name, age, grade FROM students")
+    rows = cur.fetchall()
+    conn.close()
+    if rows:
+        response = ""
+        for row in rows:
+            response += f"ID: {row[0]}, Имя: {row[1]}, Возраст: {row[2]}, Класс: {row[3]}\n"
+    else:
+        response = "База данных пуста, в ней нет информации."
+    await message.answer(response)
+
 
 async def main():
     await dp.start_polling(bot)
