@@ -1,6 +1,6 @@
 import os
 import asyncio
-from aiogram import Bot, Dispatcher, F
+from aiogram import Bot, Dispatcher
 from aiogram.filters import CommandStart, Command
 from aiogram.types import Message, FSInputFile
 from aiogram.fsm.context import FSMContext
@@ -48,7 +48,7 @@ async def help_handler(message: Message):
     help_text = (
         "Бот поддерживает команды /start и /help\n"
         "Бот просит пользователя ввести его имя, возраст и класс обучения "
-        "и далее сохраняет полученную информацию в базу данных."
+        "и сохраняет полученную информацию в базу данных."
     )
     await message.answer(help_text)
 
@@ -78,17 +78,18 @@ async def grade(message: Message, state:FSMContext):
     await message.answer("Информация сохранена в базе данных")
     await state.clear()
 
-@dp.message(Command("school_data"))
-async def send_school_data(message: Message):
+# Команда для тестирования базы данных
+@dp.message(Command("test_db"))
+async def view_school_data(message: Message):
     conn = sqlite3.connect('school_data.db')
     cur = conn.cursor()
     cur.execute("SELECT id, name, age, grade FROM students")
     rows = cur.fetchall()
     conn.close()
     if rows:
-        response = ""
+        response = "Записи из базы данных:\n"
         for row in rows:
-            response += f"ID: {row[0]}, Имя: {row[1]}, Возраст: {row[2]}, Класс: {row[3]}\n"
+            response += f"{row[0]}. Имя: {row[1]}, возраст = {row[2]}, класс {row[3]}\n"
     else:
         response = "База данных пуста, в ней нет информации."
     await message.answer(response)
