@@ -116,44 +116,45 @@ async def send_tips(message: Message):
     await message.answer(tip)
 
 @dp.message(F.text == "Личные финансы")
-async def finances(message: Message, state: FSMContext):
+async def finances_1(message: Message, state: FSMContext):
     await state.set_state(FinancesForm.category1)
     await message.reply("Введите первую категорию расходов:")
 
 @dp.message(FinancesForm.category1)
-async def finances(message: Message, state: FSMContext):
+async def finances_2(message: Message, state: FSMContext):
     await state.update_data(category1 = message.text)
     await state.set_state(FinancesForm.expenses1)
     await message.reply("Введите расходы для категории 1:")
 
 @dp.message(FinancesForm.expenses1)
-async def finances(message: Message, state: FSMContext):
+async def finances_3(message: Message, state: FSMContext):
     await state.update_data(expenses1 = float(message.text))
     await state.set_state(FinancesForm.category2)
     await message.reply("Введите вторую категорию расходов:")
 
 @dp.message(FinancesForm.category2)
-async def finances(message: Message, state: FSMContext):
+async def finances_4(message: Message, state: FSMContext):
     await state.update_data(category2 = message.text)
     await state.set_state(FinancesForm.expenses2)
     await message.reply("Введите расходы для категории 2:")
 
 @dp.message(FinancesForm.expenses2)
-async def finances(message: Message, state: FSMContext):
+async def finances_5(message: Message, state: FSMContext):
     await state.update_data(expenses2 = float(message.text))
     await state.set_state(FinancesForm.category3)
     await message.reply("Введите третью категорию расходов:")
 
 @dp.message(FinancesForm.category3)
-async def finances(message: Message, state: FSMContext):
+async def finances_6(message: Message, state: FSMContext):
     await state.update_data(category3 = message.text)
     await state.set_state(FinancesForm.expenses3)
     await message.reply("Введите расходы для категории 3:")
 
 @dp.message(FinancesForm.expenses3)
-async def finances(message: Message, state: FSMContext):
+async def finances_7(message: Message, state: FSMContext):
     data = await state.get_data()
     telegram_id = message.from_user.id
+    name = message.from_user.full_name
     conn = sqlite3.connect('user.db')
     cursor = conn.cursor()
     cursor.execute('''UPDATE users SET category1 = ?, expenses1 = ?, category2 = ?, expenses2 = ?, category3 = ?, expenses3 = ? WHERE telegram_id = ?''',
@@ -178,6 +179,7 @@ async def view_finance_data(message: Message):
     conn = sqlite3.connect('user.db')
     cursor = conn.cursor()
     telegram_id = message.from_user.id
+    name = message.from_user.full_name
     cursor.execute('''SELECT * FROM users WHERE telegram_id = ?''', (telegram_id,))
     user = cursor.fetchone()
     conn.close()
